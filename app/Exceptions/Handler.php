@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Events\AshareEvent;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class Handler extends ExceptionHandler
 {
@@ -23,6 +25,12 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
+        $this->reportable(function (AshareException $e) {
+            $message = $e->context()['message'];
+            Log::error($message);
+            AshareEvent::dispatch($message);
+        })->stop();
+
         $this->reportable(function (Throwable $e) {
             //
         });
