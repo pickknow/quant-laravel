@@ -4,44 +4,51 @@ namespace APP\Services;
 
 use App\Exceptions\AshareException;
 use App\Interfaces\AshareInterface;
+use App\Services\CurlService;
+use App\Models\Industry;
 
 class AkshareService implements AshareInterface
 {
-    protected $url = "http://127.0.0.1:5000/ak_fetch";
 
-    public function regesiter() { }
+    public $name_func = [
+        'industries' => 'stock_board_industry_name_em',
+    ];
 
-    public function __call(String $name, array $data = null) : array | null
+    public function __construct(protected CurlService $ch) { }
+
+
+    public function __call(String $name, array $data = null) 
     {
-        $post = [
-            'call_func' => $name,
-            'data' => $data,
-        ];
-        return $this->postData($post);
-    }
-
-    public function fetchData()
-    {
-        $c = curl_init($this->url);
-        curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($c);
-        return $result;
-    }
-
-    public function postData($post):array | null
-    {
-        $post_json = json_encode($post);
-        $ch = curl_init($this->url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-        $result = curl_exec($ch);
-        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($http_status == 200) return json_decode($result);
-
-        report(new AshareException($post_json . '::' . $http_status));
+        $name = data_get($this->name_func, $name);
+        if ($name) return $this->postData($name, $data);
+        dump('this function is now allowed!');
         return null;
     }
+
+    public function postData($ask_func, $ask_args = '') 
+    {
+        $post = ['call_func' => $ask_func, 'data' => $ask_args, ];
+        list('status' => $status, 'data' => $data) = $this->ch->postData($post);
+        if ($status == 200) return $this->store($ask_func, $data);
+
+        report(new AshareException($ask_func . '::' . $status));
+        return null;
+    }
+
+    public function test() {
+        print('this is a default test.');
+        return null;
+        // $post = ['symbol' => '当年', 'date' => '202204'];
+        // $result = $this->stock_szse_sector_summary($post);
+    }
+
+    public function store($name, $datas) {
+        list('columns' => $columns, 'data' => $data) = $datas;
+        Industry::zipCreate($data);
+        return null;
+
+    }
+
+
 
 }

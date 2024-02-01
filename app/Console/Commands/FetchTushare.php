@@ -13,7 +13,7 @@ class FetchTushare extends Command
      *
      * @var string
      */
-    protected $signature = 'app:fetch-ashare';
+    protected $signature = 'ashare:fetch {action=test}';
 
     /**
      * The console command description.
@@ -27,9 +27,7 @@ class FetchTushare extends Command
      */
     public function handle(AshareInterface $aShare)
     {
-        $post = ['symbol' => '当年', 'date' => '202204'];
-        $result = $aShare->stock_szse_sector_summary($post);
-        dd($result);
-        $this->info($result);
+        $action = $this->argument('action');
+        return $aShare->$action();
     }
 }
