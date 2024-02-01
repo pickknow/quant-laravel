@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\AshareEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Mail\AshareShipped;
+use Illuminate\Support\Facades\Mail;
 
 class SendAshareNotification
 {
@@ -21,6 +23,8 @@ class SendAshareNotification
      */
     public function handle(AshareEvent $event): void
     {
-        dd('I got the event', $event->message);
+        dd('got an AshareEver');
+        // Mail::to('sovsov@gmail.com')->send(new AshareShipped());
+        // dd('sent a email to sovsov@gmail.com');
     }
 }

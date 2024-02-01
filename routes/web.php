@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LivetestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Route::get('/live_test',[LivetestController::class, 'index']);
+Route::prefix('live_test')->group(function() {
+    Route::controller(LivetestController::class)->group(function(){
+        Route::get('/', 'index');
+
+    });
 });

@@ -30,6 +30,6 @@ class FetchTushare extends Command
         $post = ['symbol' => '当年', 'date' => '202204'];
         $result = $aShare->stock_szse_sector_summary($post);
         dd($result);
-        // $this->info($result);
+        $this->info($result);
     }
 }
