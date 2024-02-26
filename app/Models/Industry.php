@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use DateTime;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,22 +17,34 @@ class Industry extends Model
     ];
     protected $fillable = [
         'rank', 'name', 'code', 'price', 'up_price', 'up_by', 'tmc', 'turnover_rate',
-        'ups', 'downs', 'leader_stock', 'leader_by', 'created_at'
+        'ups', 'downs', 'leader_stock', 'leader_by'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
 
-
-    public function setCreatedAtAttribute($value) { 
-        $this->attributes['created_at'] = new DateTime();
+        self::creating(function ($model) {
+            $model->created_at = now();
+        });
     }
 
 
-    public static function zipCreate($datas) {
-        $res = array_map(function($value) {
-            return array_combine(self::$colmune_names, $value);
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = now();
+    }
+
+
+    public static function zipCreate($datas)
+    {
+        $created_at = now();
+        $res = array_map(function ($value) use ($created_at) {
+            $ss =  array_combine(self::$colmune_names, $value);
+            $ss['created_at']= $created_at;
+            return $ss;
         }, $datas);
         self::insert($res);
-        dump('all done');
+        dump('Records have been saved.');
     }
-
 }

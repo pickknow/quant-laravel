@@ -4,7 +4,10 @@ namespace App\Console\Commands;
 
 use App\Events\AshareEvent;
 use App\Interfaces\AshareInterface;
+use App\Services\CustomizedErrorService;
 use Illuminate\Console\Command;
+use App\Http\Middleware\CustomizedErrorMessage;
+use Exception;
 
 class FetchTushare extends Command
 {
@@ -22,12 +25,20 @@ class FetchTushare extends Command
      */
     protected $description = 'Fetch data from a flask app';
 
+
+    public function middleware()
+    {
+        return [new CustomizedErrorMessage];
+    }
+
     /**
      * Execute the console command.
      */
     public function handle(AshareInterface $aShare)
     {
-        $action = $this->argument('action');
-        return $aShare->$action();
+        app()->make("CES")->begin(function() use ($aShare){
+            $action = $this->argument('action');
+            $aShare->$action();
+        });
     }
 }
