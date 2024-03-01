@@ -23,8 +23,7 @@ class SendAshareNotification
      */
     public function handle(AshareEvent $event): void
     {
-        dump('AshareEver:'.$event->message);
+        dump('AshareEver:' . $event->message);
         // Mail::to('sovsov@gmail.com')->send(new AshareShipped());
-        // dd('sent a email to sovsov@gmail.com');
     }
 }

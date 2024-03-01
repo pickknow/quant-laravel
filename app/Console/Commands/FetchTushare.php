@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Events\AshareEvent;
+// use App\Events\AshareEvent;
 use App\Interfaces\AshareInterface;
-use App\Services\CustomizedErrorService;
+// use App\Services\CustomizedErrorService;
 use Illuminate\Console\Command;
 use App\Http\Middleware\CustomizedErrorMessage;
-use Exception;
+// use Exception;
 
 class FetchTushare extends Command
 {
@@ -36,7 +36,7 @@ class FetchTushare extends Command
      */
     public function handle(AshareInterface $aShare)
     {
-        app()->make("CES")->begin(function() use ($aShare){
+        app()->make("CES")->begin(function () use ($aShare) {
             $action = $this->argument('action');
             $aShare->$action();
         });

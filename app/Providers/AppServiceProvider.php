@@ -4,8 +4,9 @@ namespace App\Providers;
 
 use App\Helps\Decorator;
 use Illuminate\Support\ServiceProvider;
-use App\Services\CurlService;
+// use App\Services\CurlService;
 use App\Services\CustomizedErrorService;
+use App\Helps\Functional;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,12 +15,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton('CES', function() {
+        $this->app->singleton('CES', function () {
             return new CustomizedErrorService();
         });
 
-        $this->app->bind('decorate', function() {
+        $this->app->bind('decorate', function () {
             return new Decorator();
+        });
+
+        $this->app->bind('functional', function () {
+            return new Functional();
         });
     }
 
