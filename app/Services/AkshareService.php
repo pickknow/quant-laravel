@@ -12,6 +12,7 @@ class AkshareService
     //[action, after, before], if a function doesn't them, can be omited.
     public $name_func = [
         "industries" => ["stock_board_industry_name_em",],
+        "stocksOfIndustry" =>["stock_board_industry_cons_em"] //(symbol='小金属')
     ];
 
 

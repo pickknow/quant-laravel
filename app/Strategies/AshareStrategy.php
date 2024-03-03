@@ -4,20 +4,10 @@ namespace App\Strategies;
 
 use App\Models\Industry;
 use App\Interfaces\AshareInterface;
-use App\Exceptions\AshareException;
 use APP\Services\AkshareService;
 
 class AshareStrategy implements AshareInterface
 {
-
-    //[after, before], if a function doesn't them, can be omited.
-    public $call_handlers = [
-        "industries" => [
-            "industyStore",
-            "industyBefore",
-        ],
-    ];
-
 
     public function __construct(protected AkshareService $aShare)
     {
@@ -25,30 +15,44 @@ class AshareStrategy implements AshareInterface
 
     public function __call(string $name,  array | null $data = null)
     {
-        $call_actions = data_get($this->call_handlers, $name);
-        throw_if(
-            !$call_actions,
-            AshareException::class,
-            "This function is now allowed!"
-        );
-        [$after, $before] = $call_actions + ["", ""];
+        [$func, $after, $before] = ["_" . $name, $name . "_after", $name . "_before"];
         $data = method_exists($this, $before) ? $this->$before($data) : $data;
-        $data = $this->aShare->$name(...$data);
+        $data = method_exists($this, $func) ? $this->$func($name, $data) : $data;
         $data = method_exists($this, $after) ? $this->$after($data) : $data;
-        return "all done";
+        return $data;
     }
     public function test()
     {
         print "this is a default test in AshareStrategy.";
     }
 
-    public function industyStore($data)
+    // get all industries, this only run once.
+    public function _industries(String $name, $data)
+    {
+        return $this->aShare->$name(...$data);
+    }
+    public function industries_after($data)
     {
         return Industry::zipCreate($data);
     }
 
-    public function industyBefore($data)
+    public function industries_before($data)
     {
         return Industry::preventDouble($data);
+    }
+
+    // fetch all industries' stocks and save them.
+    public function _stocksOfIndustry(String $name, $data)
+    {
+        array_map(function ($industry) use ($name) {
+            $result = array_reduce(
+                $this->aShare->$name(symbol: $industry->name),
+                fn ($p, $n) => [[...$p[0], $n[1]], [...$p[1], $n[1] . $n[2]]],
+                [[], []]
+            );
+            $industry->nums = implode(',', $result[0]);
+            $industry->nums_names = implode(',', $result[0]);
+            $industry->save();
+        }, Industry::all() ?: []);
     }
 }

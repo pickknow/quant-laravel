@@ -25,6 +25,8 @@ return new class extends Migration
             $table->bigInteger('downs')->nullable();
             $table->string('leader_stock')->nullable();
             $table->float('leader_by')->nullable();
+            $table->text('nums')->nullable();
+            $table->text('nums_names')->nullable();
             $table->timestamp('created_at')->nullable();
         });
     }
