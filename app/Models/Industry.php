@@ -14,7 +14,7 @@ class Industry extends Model
     public $timestamps = false;
     public static $colmune_names = [
         'rank', 'name', 'code', 'price', 'up_price', 'up_by', 'tmc', 'turnover_rate',
-        'ups', 'downs', 'leader_stock', 'leader_by'
+        'ups', 'downs', 'leader_stock', 'leader_by', 'created_at'
     ];
     protected $fillable = [
         'rank', 'name', 'code', 'price', 'up_price', 'up_by', 'tmc', 'turnover_rate',
@@ -40,24 +40,23 @@ class Industry extends Model
     public static function zipCreate($datas)
     {
         $created_at = now();
-        $res = array_map(function ($value) use ($created_at) {
-            $ss =  array_combine(self::$colmune_names, $value);
-            $ss['created_at'] = $created_at;
-            return $ss;
-        }, $datas);
+        $res = array_map(fn ($value) => array_combine(self::$colmune_names, [...$value, $created_at]), $datas);
         self::insert($res);
-        dump('Records have been saved.');
+        // $res = array_map(function ($value) use ($created_at) {
+        //     return array_combine(self::$colmune_names, [...$value, $created_at]);
+        // }, $datas);
     }
 
-    public static function preventDoubleDay($date = null)
+    public static function preventDouble($data = null)
     {
-        $date = $date ?: (new DateTime())->format('Y-m-d');
-        $dateTime = new DateTime($date);
-        $result =  self::where('created_at', '>', $dateTime)->orderBy('created_at')->first();
+        // $date = $date ?: (new DateTime())->format('Y-m-d');
+        // $dateTime = new DateTime($date);
+        $result =  self::first();
         throw_if(
             $result,
             AshareException::class,
-            "::Don't fetch industries in a same day"
+            "::There already exist. Don't fetch again."
         );
+        return $data;
     }
 }

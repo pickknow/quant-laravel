@@ -3,67 +3,39 @@
 namespace APP\Services;
 
 use App\Exceptions\AshareException;
-use App\Interfaces\AshareInterface;
+// use App\Interfaces\AshareInterface;
 use App\Services\CurlService;
-use App\Models\Industry;
-use DateTime;
 // use App\Facades\Functional;
 
-class AkshareService implements AshareInterface
+class AkshareService
 {
-    /* [call_func, after, before] */
+    //[action, after, before], if a function doesn't them, can be omited.
     public $name_func = [
-        "industries" => [
-            "stock_board_industry_name_em",
-            "industyStore",
-            "industyBefore",
-        ],
+        "industries" => ["stock_board_industry_name_em",],
     ];
+
+
 
     public function __construct(protected CurlService $ch)
     {
     }
 
-    public function __call(string $name, array $data = [])
+    public function __call(string $ask_func, array $data = [])
     {
-        $call_actions = data_get($this->name_func, $name);
+        $call_actions = data_get($this->name_func, $ask_func);
         throw_if(
             !$call_actions,
             AshareException::class,
-            "This function is now allowed!"
+            "Call is not found!"
         );
-        [$fetch, $after, $before] = $call_actions + ["", "", ""];
-        $data = method_exists($this, $before) ? $this->$before($data) : $data;
-        $data = $this->postData($fetch, $data);
-        $data = method_exists($this, $after) ? $this->$after($data['data']) : $data;
-        return "all done";
-    }
-
-    public function postData($ask_func, $ask_args = [])
-    {
-        $post = ["call_func" => $ask_func, "data" => $ask_args];
+        [$call_actions, ] = $call_actions;
+        $post = ["call_func" => $call_actions , "data" => $data];
         ["status" => $status, "data" => $data] = $this->ch->postData($post);
         throw_if(
             $status !== 200,
             AshareException::class,
             $ask_func . "::" . $status
         );
-        return $data;
-    }
-
-    public function test()
-    {
-        print "this is a default test.";
-    }
-
-
-    public function industyStore($data)
-    {
-        return Industry::zipCreate($data);
-    }
-
-    public function industyBefore()
-    {
-        return Industry::preventDoubleDay();
+        return $data['data'];
     }
 }
