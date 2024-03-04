@@ -4,7 +4,8 @@ namespace App\Strategies;
 
 use App\Models\Industry;
 use App\Interfaces\AshareInterface;
-use APP\Services\AkshareService;
+use App\Services\AkshareService;
+use App\Helps\Functools;
 
 class AshareStrategy implements AshareInterface
 {
@@ -41,18 +42,16 @@ class AshareStrategy implements AshareInterface
         return Industry::preventDouble($data);
     }
 
-    // fetch all industries' stocks and save them.
     public function _stocksOfIndustry(String $name, $data)
     {
-        array_map(function ($industry) use ($name) {
-            $result = array_reduce(
-                $this->aShare->$name(symbol: $industry->name),
-                fn ($p, $n) => [[...$p[0], $n[1]], [...$p[1], $n[1] . $n[2]]],
-                [[], []]
-            );
-            $industry->nums = implode(',', $result[0]);
-            $industry->nums_names = implode(',', $result[0]);
-            $industry->save();
-        }, Industry::all() ?: []);
+        Functools::of(Industry::all())
+            ->map(function ($i) use ($name) {
+                Functools::of($this->aShare->$name(symbol: $i->name))
+                    ->reduce(fn ($p, $n) => [[...$p[0], $n[1]], [...$p[1], $n[1] . $n[2]]], [[], []])
+                    ->map(fn ($r) => Industry::where('id', $i->id)->update([
+                        'nums' => implode(',', $r[0]),
+                        'nums_names' => implode(',', $r[1])
+                    ]));
+            });
     }
 }
