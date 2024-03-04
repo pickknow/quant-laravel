@@ -11,7 +11,6 @@ function curryHandler($callback, $args, $length)
     };
 }
 
-
 class ArrayHelpers
 {
 
@@ -19,28 +18,34 @@ class ArrayHelpers
     {
     }
 
-    public function map($func)
+    public function __call(string $name, $arr)
     {
-        $this->value = array_map(fn ($item) => $func($item), $this->value);
+        $call = "_" . $name;
+        $this->value = method_exists($this, $call) ? $this->$call(...$arr) : $this->value;
         return $this;
     }
-    public function reduce($func, $init = null)
+
+    public function _map($func)
+    {
+        $this->value = array_map(fn ($item) => $func($item), $this->value);
+    }
+    public function _reduce($func, $init = null)
     {
         $this->value = $init
             ? [array_reduce($this->value, fn ($p, $n) => $func($p, $n), $init)]
             : [array_reduce($this->value, fn ($p, $n) => $func($p, $n))];
-        return $this;
     }
-    public function filter($func)
+    public function _filter($func)
     {
         $this->value = array_filter($this->value, fn ($item) => $func($item));
-        return $this;
+    }
+    public function value()
+    {
+        return $this->value;
     }
 }
 class Functools
 {
-
-
 
     public static function arr($arr = [])
     {

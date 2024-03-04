@@ -29,14 +29,14 @@ class AkshareService
             AshareException::class,
             "Call is not found!"
         );
-        [$call_actions, ] = $call_actions;
-        $post = ["call_func" => $call_actions , "data" => $data];
+        [$call_name, ] = $call_actions;
+        $post = ["call_func" => $call_name , "data" => $data];
         ["status" => $status, "data" => $data] = $this->ch->postData($post);
         throw_if(
             $status !== 200,
             AshareException::class,
             $ask_func . "::" . $status
         );
-        return $data['data'];
+        return $data['data']; //return data, because if didn't get data, then throw an Error.
     }
 }
