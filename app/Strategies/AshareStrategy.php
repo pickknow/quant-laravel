@@ -90,4 +90,12 @@ class AshareStrategy implements AshareInterface
     {
         $this->oneDayAllStocks(save: true);
     }
+
+    public function _stockInfo(string $name, $arr)
+    {
+        Functools::of($this->getAllStocksCodes())
+            ->through(fn($x) => $this->aShare->$name(symbol:$x))
+            ->take();
+
+    }
 }

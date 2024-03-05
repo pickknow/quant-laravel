@@ -14,6 +14,8 @@ function curryHandler($callback, $args, $length)
 class ArrayHelpers
 {
 
+    protected $through_fns = [];
+
     public function __construct(public array $value = [])
     {
     }
@@ -40,6 +42,19 @@ class ArrayHelpers
     public function _filter($func)
     {
         $this->value = array_filter($this->value, fn ($item) => $func($item));
+    }
+
+    public function _through($func)
+    {
+        $this->through_fns[] = $func;
+        return $this;
+    }
+
+    public function _take()
+    {
+        $this->value = count($this->through_fns) > 0
+            ? array_reduce($this->through_fns, fn ($p, $n) => $n($p), $this->value)
+            : $this->value;
     }
 
     public function console()

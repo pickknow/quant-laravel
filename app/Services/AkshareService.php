@@ -14,6 +14,7 @@ class AkshareService
         "industries" => ["stock_board_industry_name_em",],
         "stocksOfIndustry" =>["stock_board_industry_cons_em",], //(symbol='小金属')
         "diaryHistory" =>["stock_zh_a_hist",], //(symbol="000001", period="daily", start_date="20170301", end_date='20210907', adjust="")
+        "stockInfo" =>["stock_individual_info_em",], //(symbol="000001")
     ];
 
 
