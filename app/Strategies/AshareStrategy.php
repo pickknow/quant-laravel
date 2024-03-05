@@ -3,6 +3,7 @@
 namespace App\Strategies;
 
 use App\Models\Industry;
+use App\Models\Stock;
 use App\Interfaces\AshareInterface;
 use App\Services\AkshareService;
 use App\Helps\Functools;
@@ -94,8 +95,9 @@ class AshareStrategy implements AshareInterface
     public function _stockInfo(string $name, $arr)
     {
         Functools::of($this->getAllStocksCodes())
-            ->through(fn($x) => $this->aShare->$name(symbol:$x))
-            ->take();
-
+            ->through([
+                fn ($x) => $this->aShare->$name(symbol: $x),
+                fn ($x) => Stock::zipOneCreate($x)
+            ]);
     }
 }

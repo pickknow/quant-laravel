@@ -14,10 +14,15 @@ function curryHandler($callback, $args, $length)
 class ArrayHelpers
 {
 
-    protected $through_fns = [];
+    protected $fns = [];
 
     public function __construct(public array $value = [])
     {
+    }
+
+    public static function of($arr = [])
+    {
+        return  new ArrayHelpers($arr);
     }
 
     public function __call(string $name, $arr)
@@ -44,18 +49,22 @@ class ArrayHelpers
         $this->value = array_filter($this->value, fn ($item) => $func($item));
     }
 
-    public function _through($func)
+    // this function holds a function set, when receives 'donw', apply the functions to every $this->value
+    public function _each($func)
     {
-        $this->through_fns[] = $func;
-        return $this;
+        if ($func == 'done' && count($this->fns) > 0) {
+            $this->value = array_map(fn ($item) => array_reduce($this->fns, fn ($p, $n) => $n($p), $item), $this->value);
+        } else {
+            $this->fns[] = $func;
+        }
+    }
+    // apply some functions to each $this->value;
+    public function _through($funcs)
+    {
+        array_map(fn ($item) => array_reduce($funcs, fn ($p, $n) => $n($p), $item), $this->value);
     }
 
-    public function _take()
-    {
-        $this->value = count($this->through_fns) > 0
-            ? array_reduce($this->through_fns, fn ($p, $n) => $n($p), $this->value)
-            : $this->value;
-    }
+
 
     public function console()
     {

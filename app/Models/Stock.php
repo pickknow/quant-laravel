@@ -23,6 +23,13 @@ class Stock extends Model
         self::insert($res);
     }
 
+   public static function zipOneCreate($value)
+    {
+        // self::preventDouble();
+        $res = array_combine(self::$colmune_names, $value);
+        self::insert($res);
+    }
+
   public static function preventDouble($data = null)
     {
         $result =  self::first();
