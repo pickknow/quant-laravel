@@ -27,7 +27,9 @@ class ArrayHelpers
 
     public function _map($func)
     {
-        $this->value = array_map(fn ($item) => $func($item), $this->value);
+        $this->value = gettype($this->value) == 'array'
+            ? array_map(fn ($item) => $func($item), $this->value)
+            : $func($this->value);
     }
     public function _reduce($func, $init = null)
     {
@@ -39,6 +41,17 @@ class ArrayHelpers
     {
         $this->value = array_filter($this->value, fn ($item) => $func($item));
     }
+
+    public function console()
+    {
+        env('APP_DEBUG') && dump($this->value); #only dump when debuging.
+        return $this;
+    }
+    public function dd()
+    {
+        dd($this->value);
+    }
+
     public function value()
     {
         return $this->value;
@@ -46,11 +59,6 @@ class ArrayHelpers
 }
 class Functools
 {
-
-    public static function arr($arr = [])
-    {
-        return  new ArrayHelpers($arr);
-    }
 
     public static function of($arr = [])
     {

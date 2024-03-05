@@ -54,4 +54,40 @@ class AshareStrategy implements AshareInterface
                     ]));
             });
     }
+
+    public function diaryHistory($code, $start = null, $end = null, $save = false)
+    {
+        $start = $start ?: date("Ymd");
+        $end = $end ?: $start;
+        $result = $this->aShare->diaryHistory(
+            symbol: $code,
+            start_date: $start,
+            end_date: $end,
+            period: "daily",
+            adjust: ""
+        );
+        $save && $save($result);
+        return $result;
+    }
+
+    public function getAllStocksCodes(): array //['000001','000002']
+    {
+        return Functools::of(Industry::all('nums'))
+            ->reduce(fn ($p, $n) => $p->nums . "," . $n->nums)
+            ->map(fn ($x) => explode(",", $x))
+            ->value();
+    }
+
+    public function oneDayAllStocks($start = null, $save = false)
+    {
+        Functools::of($this->getAllStocksCodes())
+            ->dd()
+            ->map(fn ($x) => $this->diaryHistory($x, start: $start, save: $save));
+    }
+
+    // this function is going to fetch all stock date today.
+    public function _diaryHistory()
+    {
+        $this->oneDayAllStocks(save: true);
+    }
 }
