@@ -16,21 +16,27 @@ class AshareStrategy implements AshareInterface
 
     public function __call(string $name, array|null $data = null)
     {
-        [$func, $after, $before] = [
-            "_" . $name,
-            $name . "_after",
-            $name . "_before",
-        ];
+        [$func, $after, $before] = ["_" . $name, $name . "_after", $name . "_before",];
         $data = method_exists($this, $before) ? $this->$before($data) : $data;
-        $data = method_exists($this, $func)
-            ? $this->$func($name, $data)
-            : $data;
+        $data = method_exists($this, $func) ? $this->$func($name, $data) : $data;
         $data = method_exists($this, $after) ? $this->$after($data) : $data;
         return $data;
     }
     public function test()
     {
         print "this is a default test in AshareStrategy.";
+    }
+
+    public function _initData()
+    {
+        dump('begin');
+        dump('----industries----');
+        $this->industries();
+        dump('----stocksOfIndustry----');
+        $this->stocksOfIndustry();
+        dump('----stockInfo----');
+        $this->stockInfo();
+        dump('end');
     }
 
     // get all industries, this only run once.
@@ -48,21 +54,16 @@ class AshareStrategy implements AshareInterface
         return Industry::preventDouble($data);
     }
 
+    // get all sotcks of industery, and save them to datebase.
     public function _stocksOfIndustry(string $name, $data)
     {
         Functools::of(Industry::all())->map(function ($i) use ($name) {
             Functools::of($this->aShare->$name(symbol: $i->name))
-                ->reduce(
-                    fn($p, $n) => [
-                        [...$p[0], $n[1]],
-                        [...$p[1], $n[1] . $n[2]],
-                    ],
-                    [[], []]
-                )
+                ->reduce(fn ($p, $n) => [[...$p[0], $n[1]], [...$p[1], $n[1] . $n[2]],], [[], []])
                 ->map(
-                    fn($r) => Industry::where("id", $i->id)->update([
+                    fn ($r) => Industry::where("id", $i->id)->update([
                         "nums" => implode(",", $r[0]),
-                        "nums_names" => implode(",", $r[1]),
+                        "nums_names" => implode(",", $r[1])
                     ])
                 );
         });
@@ -91,10 +92,9 @@ class AshareStrategy implements AshareInterface
     {
         //['000001','000002']
         return Functools::of(Industry::all("nums")->toArray())
-            ->map(fn($x) => $x["nums"])
-            // ->reduce(fn($p, $n) => $p . "," . $n)
-            ->tap(fn($x) => implode(",", $x))
-            ->map(fn($x) => explode(",", $x))
+            ->map(fn ($x) => $x["nums"])
+            ->tap(fn ($x) => implode(",", $x))
+            ->map(fn ($x) => explode(",", $x))
             ->value();
     }
 
@@ -103,7 +103,7 @@ class AshareStrategy implements AshareInterface
         Functools::of($this->getAllStocksCodes())
             ->dd()
             ->map(
-                fn($x) => $this->diaryHistorySave(
+                fn ($x) => $this->diaryHistorySave(
                     $x,
                     start: $start,
                     save: $save
@@ -120,8 +120,8 @@ class AshareStrategy implements AshareInterface
     public function _stockInfo(string $name, $arr)
     {
         Functools::of($this->getAllStocksCodes())->through([
-            fn($x) => $this->aShare->$name(symbol: $x),
-            fn($x) => Stock::zipOneCreate($x),
+            fn ($x) => $this->aShare->$name(symbol: $x),
+            fn ($x) => Stock::zipOneCreate($x),
         ]);
     }
 }
