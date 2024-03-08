@@ -49,8 +49,6 @@ class Industry extends Model
 
     public static function preventDouble($data = null)
     {
-        // $date = $date ?: (new DateTime())->format('Y-m-d');
-        // $dateTime = new DateTime($date);
         $result =  self::first();
         throw_if(
             $result,

@@ -6,7 +6,7 @@ use App\Helps\Decorator;
 use Illuminate\Support\ServiceProvider;
 // use App\Services\CurlService;
 use App\Services\CustomizedErrorService;
-use App\Helps\Functional;
+use App\Helps\Functools;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
             return new Decorator();
         });
 
-        $this->app->bind('functional', function () {
-            return new Functional();
+        $this->app->bind('functools', function () {
+            return new Functools();
         });
     }
 

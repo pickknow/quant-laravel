@@ -2,6 +2,8 @@
 
 namespace App\Helps;
 
+use Illuminate\Support\Collection;
+
 function curryHandler($callback, $args, $length)
 {
     if ($length <= 0) {
@@ -26,7 +28,7 @@ class ArrayHelpers
         return new ArrayHelpers($arr);
     }
 
-    public function __call(string $name, $arr)
+    public function __call(string $name, $arr): ArrayHelpers
     {
         $call = "_" . $name;
         $this->value = method_exists($this, $call)
@@ -35,30 +37,33 @@ class ArrayHelpers
         return $this;
     }
 
-    public function _map($func)
+    public function _map($func): array
     {
         return gettype($this->value) == "array"
-            ? array_map(fn($item) => $func($item), $this->value)
+            ? array_map(fn ($item) => $func($item), $this->value)
             : $func($this->value);
     }
-    public function _reduce($func, $init = null)
+    /**
+     *   @return a array with one element array[any]
+     */
+    public function _reduce($func, $init = null): array
     {
         if (count($this->value) < 1) {
             return $this;
         }
         return $init
-            ? [array_reduce($this->value, fn($p, $n) => $func($p, $n), $init)]
+            ? [array_reduce($this->value, fn ($p, $n) => $func($p, $n), $init)]
             : [
                 array_reduce(
                     array_slice($this->value, 1),
-                    fn($p, $n) => $func($p, $n),
+                    fn ($p, $n) => $func($p, $n),
                     $this->value[0]
                 ),
             ];
     }
-    public function _filter($func)
+    public function _filter($func): array
     {
-        return array_filter($this->value, fn($item) => $func($item));
+        return array_filter($this->value, fn ($item) => $func($item));
     }
 
     // this function holds a function set, when receives 'donw', apply the functions to every $this->value
@@ -66,9 +71,9 @@ class ArrayHelpers
     {
         if ($func == "done" && count($this->fns) > 0) {
             $this->value = array_map(
-                fn($item) => array_reduce(
+                fn ($item) => array_reduce(
                     $this->fns,
-                    fn($p, $n) => $n($p),
+                    fn ($p, $n) => $n($p),
                     $item
                 ),
                 $this->value
@@ -81,13 +86,14 @@ class ArrayHelpers
     public function _through($funcs)
     {
         return array_map(
-            fn($item) => array_reduce($funcs, fn($p, $n) => $n($p), $item),
+            fn ($item) => array_reduce($funcs, fn ($p, $n) => $n($p), $item),
             $this->value
         );
     }
     public function _tap($func)
     {
-        return [$func($this->value)];
+        $func($this->value);
+        return $this->value;
     }
 
     public function console()
@@ -100,16 +106,52 @@ class ArrayHelpers
         dd($this->value);
     }
 
-    public function value()
+    public function get()
     {
         return $this->value;
     }
 }
+
+class CollectHelpers
+{
+    public function __construct(public $value)
+    {
+    }
+    public function __call(string $name, $arr) 
+    {
+        $call = "_" . $name;
+        $this->value = method_exists($this, $call)
+            ? $this->$call(...$arr)
+            : $this->value->$name(...$arr);
+        return $this;
+    }
+    public function reduce($fn){
+        $this->value = collect([$this->value->reduce($fn)]);
+        return $this;
+    }
+
+    public function dd()
+    {
+        dd($this->value);
+    }
+
+    public function get()
+    {
+        return $this->value;
+    }
+}
+
+
 class Functools
 {
-    public static function of($arr = [])
+    public static function of($value)
     {
-        return new ArrayHelpers($arr);
+        switch (gettype($value)) {
+            case 'array':
+                return new ArrayHelpers($value);
+            case 'object':
+                return new CollectHelpers($value);
+        }
     }
 
     public static function curry($callback)

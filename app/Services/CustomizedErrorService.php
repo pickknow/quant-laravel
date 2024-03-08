@@ -13,7 +13,7 @@ class CustomizedErrorService
         return $this;
     }
 
-    public function addError(String $message)
+    public function info(String $message)
     {
         $this->messages[] = $message;
         return $this;
@@ -27,7 +27,7 @@ class CustomizedErrorService
     }
     public function begin($fn)
     {
-        $this->adderror('begin.');
+        $this->info('begin.');
         try {
             return $fn();
         } finally {

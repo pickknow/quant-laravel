@@ -186,7 +186,7 @@ return [
         // 'Example' => App\Facades\Example::class,
         'Tushare' => App\Providers\AshareServiceProvider::class,
         'Decorate' => App\Facades\Decorator::class,
-        'Functional' => App\Facades\Functional::class,
+        'Functools' => App\Facades\Functools::class,
     ])->toArray(),
 
 ];

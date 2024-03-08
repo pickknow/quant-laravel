@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Exceptions\AshareException;
+
+
 
 class Stockhistory extends Model
 {
@@ -15,4 +19,19 @@ class Stockhistory extends Model
     public static $fillable = [
         'date', 'open', 'close', 'high', 'low', 'vol', 'amt', 'amplitude', 'quote_change', 'changes', 'ratio'
     ];
+
+  public static function preventDouble($date = null)
+    {
+        $date = $date ?: (new DateTime())->format('Y-m-d');
+        $dateTime = new DateTime($date);
+        $result =  self::where('date', '>=', $dateTime)->first();
+        throw_if(
+            $result,
+            AshareException::class,
+            "::Today's data already exist."
+        );
+        return $date;
+    }
 }
+
+

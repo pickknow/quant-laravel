@@ -4,10 +4,10 @@ namespace App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Functional extends Facade
+class Functools extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return 'functional';
+        return 'functools';
     }
 }
