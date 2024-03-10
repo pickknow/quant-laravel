@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('code')->nullable();
             $table->string('name')->nullable();
-            $table->float('fdv')->nullable();
-            $table->float('mkt_cap')->nullable();
+            $table->bigInteger('fdv')->nullable();
+            $table->bigInteger('mkt_cap')->nullable();
             $table->string('industry')->nullable();
             $table->string('up_time')->nullable();
             $table->bigInteger('all_share')->nullable();

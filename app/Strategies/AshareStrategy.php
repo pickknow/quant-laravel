@@ -117,6 +117,7 @@ class AshareStrategy implements AshareInterface
             ->take(1)
             ->eachThrough([
                 fn ($x) => $this->aShare->stockInfo(symbol: $x),
+                // fn($x) => array_map(fn($y) => $y[1], $x),
                 fn ($x) => Stock::zipOneCreate($x),
             ]);
     }
