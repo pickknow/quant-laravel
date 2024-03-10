@@ -95,6 +95,10 @@ class ArrayHelpers
         $func($this->value);
         return $this->value;
     }
+    public function _apply($func)
+    {
+        return $func($this->value);
+    }
 
     public function console()
     {

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Foundation\Application;
 use App\Interfaces\AshareInterface;
 use App\Services\CurlService;
 use App\Strategies\AshareStrategy;
+use Illuminate\Support\Collection;
 
 class AshareServiceProvider extends ServiceProvider
 {
@@ -36,5 +37,8 @@ class AshareServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        Collection::macro('eachThrough', function ($fns) {
+            return $this->map(fn ($value) => array_reduce($fns, fn ($p, $n) => $n($p), $value));
+        });
     }
 }

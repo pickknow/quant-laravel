@@ -32,16 +32,14 @@ class AshareStrategy implements AshareInterface
      * second: get stock codes of each of them
      * third: get infomation of each stock
      */
-    public function _initData()
+    public function initData()
     {
-        dump('begin');
         dump('----industries----');
         $this->industries();
         dump('----stocksOfIndustry----');
         $this->stocksOfIndustry();
         dump('----stockInfo----');
         $this->stockInfo();
-        dump('end');
     }
 
     // get all industries, this only run once.
@@ -56,7 +54,7 @@ class AshareStrategy implements AshareInterface
     public function stocksOfIndustry()
     {
         app()->make("CES")->info('stocksOfIndustry');
-        Industry::all()->map(function ($i){
+        Industry::all()->map(function ($i) {
             Functools::of($this->aShare->stocksOfIndustry(symbol: $i->name))
                 ->reduce(fn ($p, $n) => [[...$p[0], $n[1]], [...$p[1], $n[1] . $n[2]],], [[], []])
                 ->map(
@@ -87,21 +85,17 @@ class AshareStrategy implements AshareInterface
         return $result;
     }
 
-    public function getAllStocksCodes() 
+    public function getAllStocksCodes(): array
     {
         //['000001','000002']
-        $ss =  Functools::of(Industry::all("nums"))
-            ->map(fn ($x) => $x->nums)
-            ->reduce(fn ($p, $n) => $p.",".$n)
-            ->map(fn ($x) => explode(",", $x))
-            ->first()
-            ->dd();
+        return Industry::all("nums")
+            ->map(fn ($x) => explode(",", $x->nums))
+            ->reduce(fn ($p, $n) => $p + $n, []);
     }
 
     public function oneDayAllStocks($start = null, $save = false)
     {
-        Functools::of($this->getAllStocksCodes())
-            ->dd()
+        collect($this->getAllStocksCodes())
             ->map(
                 fn ($x) => $this->diaryHistorySave(
                     $x,
@@ -119,9 +113,11 @@ class AshareStrategy implements AshareInterface
 
     public function stockInfo()
     {
-        Functools::of($this->getAllStocksCodes())->through([
-            fn ($x) => $this->aShare->stockInfo(symbol: $x),
-            fn ($x) => Stock::zipOneCreate($x),
-        ]);
+        collect($this->getAllStocksCodes())
+            ->take(1)
+            ->eachThrough([
+                fn ($x) => $this->aShare->stockInfo(symbol: $x),
+                fn ($x) => Stock::zipOneCreate($x),
+            ]);
     }
 }
