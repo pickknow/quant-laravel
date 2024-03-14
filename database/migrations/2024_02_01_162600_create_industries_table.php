@@ -27,6 +27,10 @@ return new class extends Migration
             $table->float('leader_by')->nullable();
             $table->text('nums')->nullable();
             $table->text('nums_names')->nullable();
+            $table->int('stocks')->nullable();
+            $table->int('over_ma5')->nullable();
+            $table->int('over_ma20')->nullable();
+            $table->int('over_ma60')->nullable();
             $table->timestamp('created_at')->nullable();
         });
     }
