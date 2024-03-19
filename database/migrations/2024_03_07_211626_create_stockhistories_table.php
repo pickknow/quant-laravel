@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('stockhistories', function (Blueprint $table) {
             $table->id();
+            $table->float('ma5')->default(0); // the ma5 of the last day of the stock.
+            $table->float('ma20')->default(0);
+            $table->float('ma60')->default(0);
             $table->timestamps();
         });
     }

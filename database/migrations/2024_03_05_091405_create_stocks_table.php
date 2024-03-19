@@ -19,9 +19,6 @@ return new class extends Migration
             $table->bigInteger('mkt_cap')->nullable();
             $table->string('industry')->nullable();
             $table->string('up_time')->nullable();
-            $table->float('ma5')->default(0);
-            $table->float('ma20')->default(0);
-            $table->float('ma60')->default(0);
             $table->bigInteger('all_share')->nullable();
             $table->bigInteger('current_share')->nullable();
             $table->timestamps();

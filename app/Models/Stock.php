@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Exceptions\AshareException;
 
+/**
+ * This table should be only fetched once.
+ * If necessary, can be fetched and updated.
+ * But, it doesn't need to fetch every day.
+ */
+
 class Stock extends Model
 {
     use HasFactory;

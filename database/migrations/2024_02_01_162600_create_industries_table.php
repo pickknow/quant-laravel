@@ -27,10 +27,10 @@ return new class extends Migration
             $table->float('leader_by')->nullable();
             $table->text('nums')->nullable();
             $table->text('nums_names')->nullable();
-            $table->int('stocks')->nullable();
-            $table->int('over_ma5')->nullable();
-            $table->int('over_ma20')->nullable();
-            $table->int('over_ma60')->nullable();
+            $table->int('stocks')->nullable(); 
+            $table->int('over_ma5')->nullable(); // the nums of how many stocks price over their ma5 price
+            $table->int('over_ma20')->nullable(); // same as the above, but ma20
+            $table->int('over_ma60')->nullable(); // ma60
             $table->timestamp('created_at')->nullable();
         });
     }
