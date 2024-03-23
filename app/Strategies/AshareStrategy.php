@@ -119,4 +119,13 @@ class AshareStrategy implements AshareInterface
                 fn ($x) => Stock::zipOneCreate($x),
             ]);
     }
+
+    public function calStocksOfInsdutry()
+    {
+        Industry::all()
+            ->map( function($item) {
+                $item->stocks =  count(explode(',', $item->nums));
+                $item->save();
+            });
+    }
 }

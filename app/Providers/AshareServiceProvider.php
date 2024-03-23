@@ -40,5 +40,9 @@ class AshareServiceProvider extends ServiceProvider
         Collection::macro('eachThrough', function ($fns) {
             return $this->map(fn ($value) => array_reduce($fns, fn ($p, $n) => $n($p), $value));
         });
+
+        Collection::macro('reduceToOne', function ($fn, $init) {
+            return [$this->reduce($fn, $init)];
+        });
     }
 }
