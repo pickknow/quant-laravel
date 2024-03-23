@@ -7,6 +7,9 @@ use App\Models\Stock;
 use App\Interfaces\AshareInterface;
 use App\Services\AkshareService;
 use App\Helps\Functools;
+use App\Models\Stockhistory;
+use DateTime;
+use DateInterval;
 
 class AshareStrategy implements AshareInterface
 {
@@ -79,7 +82,7 @@ class AshareStrategy implements AshareInterface
             start_date: $start,
             end_date: $end,
             period: "daily",
-            adjust: ""
+            adjust: "qfq"
         );
         $save && $save($result);
         return $result;
@@ -123,9 +126,34 @@ class AshareStrategy implements AshareInterface
     public function calStocksOfInsdutry()
     {
         Industry::all()
-            ->map( function($item) {
+            ->map(function ($item) {
                 $item->stocks =  count(explode(',', $item->nums));
                 $item->save();
             });
+    }
+
+    public function getHistoryDate(): array
+    {
+        $start = date("Ymd");
+        $last = Stockhistory::orderByDesc('id')->first();
+        if ($last) {
+            $end = $last->date;
+        } else {
+            $dateTime = new DateTime($start);
+            $dateTime->sub(new DateInterval('P30D'));
+            $end = $dateTime->format('Ymd');
+        }
+        return [$start, $end];
+    }
+
+    public function stocksHistory()
+    {
+        [$start, $end] = $this->getHistoryDate();
+        dd($start, $end);
+        collect($this->getAllStocksCodes())
+            ->eachThrough([
+                fn ($x) => $this->aShare->stockInfo(symbol: $x),
+                fn ($x) => Stockhistory::zipCreate($x),
+            ]);
     }
 }
